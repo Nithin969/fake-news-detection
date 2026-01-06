@@ -32,5 +32,18 @@ def login():
 def thankyou():
     return render_template("thankyou.html")
 
+@app.route("/predict", methods=["POST"])
+def predict():
+    news_text = request.form.get("news")
+
+    # Dummy prediction logic (for now)
+    if news_text and len(news_text) > 50:
+        result = "Real News"
+    else:
+        result = "Fake News"
+
+    return render_template("project.html", prediction=result)
+
+
 if __name__ == "__main__":
     app.run(debug=True)
