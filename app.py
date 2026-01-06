@@ -1,6 +1,12 @@
 from flask import Flask, render_template, request, jsonify
+Create data folder
+
 
 app = Flask(__name__)
+# Load ML model and vectorizer
+model = pickle.load(open("model/fake_news_model.pkl", "rb"))
+vectorizer = pickle.load(open("model/tfidf_vectorizer.pkl", "rb"))
+
 
 # --------------------
 # Page routes
@@ -50,17 +56,23 @@ def predict():
 # --------------------
 # Fake News Prediction (IMAGE)
 # --------------------
-@app.route("/predict_image", methods=["POST"])
-def predict_image():
-    file = request.files.get("file")
+@app.route("/predict", methods=["POST"])
+def predict():
+    news_text = request.form.get("news_text")
 
-    if not file:
-        return jsonify({"error": "No image uploaded"})
+    if not news_text:
+        return jsonify({"error": "No text provided"})
 
-    # Dummy response for image input
-    prediction = "Fake News"
+    # Vectorize input text
+    transformed_text = vectorizer.transform([news_text])
 
-    return jsonify({"prediction": prediction})
+    # Predict
+    prediction = model.predict(transformed_text)[0]
+
+    result = "Real News" if prediction == 1 else "Fake News"
+
+    return jsonify({"prediction": result})
+
 
 
 # --------------------
